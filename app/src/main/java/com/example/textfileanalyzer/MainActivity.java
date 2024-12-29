@@ -108,6 +108,32 @@ public class MainActivity extends AppCompatActivity {
         pdfDocument.close();
     }
 
+    private void analyzeEmotiveness(String loadedContent) {
+        int questionMarks = loadedContent.length() - loadedContent.replace("?", "").length();
+        int exclamationMarks = loadedContent.length() - loadedContent.replace("!", "").length();
+        int totalMarks = questionMarks + exclamationMarks;
+        int sentenceCount = getSentenceCount(loadedContent);
+
+        double ratio = (sentenceCount > 0) ? (double) totalMarks / sentenceCount : 0;
+
+        String emotiveness;
+        if (ratio == 0) {
+            emotiveness = "Text is not emotive";
+        } else if (ratio > 0 && ratio < 0.15) {
+            emotiveness = "Text is slightly emotive";
+        } else if (ratio >= 0.15 && ratio <= 0.25) {
+            emotiveness = "Text is emotive";
+        } else { // ratio > 0.25
+            emotiveness = "Text is very emotive";
+        }
+
+        // Update the UI
+        runOnUiThread(() -> {
+            TextView emotivenessView = findViewById(R.id.emotivenessText);
+            emotivenessView.setText(emotiveness);
+        });
+    }
+
 
     private String generateRandomParagraph(Map<String, Integer> wordFreq, int wordCount, double temperature) {
         List<String> words = new ArrayList<>(wordFreq.keySet());
@@ -179,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
             loadedContent = contentBuilder.toString();
             displayStatistics(loadedContent);
+            analyzeEmotiveness(loadedContent);
         } catch (IOException e) {
             Toast.makeText(this, "Failed to load PDF file", Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -198,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             inputStream.close();
             loadedContent =contentBuilder.toString();
             displayStatistics(loadedContent);
+            analyzeEmotiveness(loadedContent);
         } catch (IOException e) {
             Toast.makeText(this, "Error loading the file", Toast.LENGTH_SHORT).show();
         }
