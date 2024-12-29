@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int getSentenceCount(String loadedContent) {
         return loadedContent.split("[.!?]").length;
-        //hello world
+
     }
 
     private int getWordCount(String loadedContent) {
